@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff5f8">
+  <title>몽글 파일함 🌷</title>
+  <style>
+    :root{--pink:#f6a9c3;--pink2:#ffe1eb;--ink:#51434b;--muted:#9b8790;--paper:#fffdfd;--line:#f4dce5;--lav:#eee9ff}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#fff5f8,#f8f5ff 55%,#f2fbff);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);min-height:100vh}
+    .wrap{width:min(920px,calc(100% - 32px));margin:48px auto}
+    header{text-align:center;margin-bottom:26px}.logo{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:22px;background:white;box-shadow:0 8px 24px #d9b6c533;font-size:30px}
+    h1{font-size:clamp(27px,5vw,38px);margin:13px 0 5px;letter-spacing:-1.5px}.sub{color:var(--muted);margin:0;font-size:14px}
+    .panel{background:#ffffffd9;border:1px solid white;border-radius:28px;padding:clamp(20px,4vw,34px);box-shadow:0 18px 55px #d8bfd033;backdrop-filter:blur(12px)}
+    .lock{max-width:430px;margin:0 auto}.label{font-size:13px;font-weight:700;margin:0 0 9px;display:block}
+    input{width:100%;border:1px solid var(--line);background:#fffafd;border-radius:15px;padding:15px 16px;font-size:16px;outline:none;color:var(--ink)}
+    input:focus{border-color:var(--pink);box-shadow:0 0 0 4px #f6a9c322}
+    button,.btn{border:0;border-radius:14px;background:var(--pink);color:white;font-weight:750;padding:13px 18px;font-size:14px;cursor:pointer;transition:.18s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+    button:hover,.btn:hover{transform:translateY(-1px);filter:brightness(.98);box-shadow:0 7px 18px #e99ab833}
+    .unlock{width:100%;margin-top:12px}.error{min-height:20px;color:#d35c7f;font-size:13px;margin:9px 2px 0}
+    .hidden{display:none!important}
+    .toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:19px}
+    .toolbar h2{margin:0;font-size:21px}.search{max-width:270px;padding:11px 14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+    .file{border:1px solid var(--line);border-radius:20px;background:#fff;padding:17px;min-width:0}
+    .file-top{display:flex;gap:12px;align-items:center}.file-icon{width:47px;height:47px;display:grid;place-items:center;border-radius:15px;background:var(--pink2);font-size:23px;flex:none}
+    .file h3{font-size:15px;margin:0 0 4px;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--muted)}
+    .desc{font-size:13px;color:#796872;line-height:1.5;min-height:38px;margin:13px 0}
+    .actions{display:flex;gap:8px}.actions button,.actions a{flex:1;padding:10px 8px;font-size:12px}.preview{background:var(--lav);color:#7665a9}
+    .empty{grid-column:1/-1;text-align:center;padding:40px 12px;color:var(--muted);border:1px dashed var(--line);border-radius:18px}
+    .note{font-size:12px;color:var(--muted);text-align:center;margin:20px 0 0}
+    .modal{position:fixed;inset:0;background:#30232d99;display:grid;place-items:center;padding:18px;z-index:5}
+    .modal-box{width:min(900px,100%);height:min(760px,90vh);background:white;border-radius:22px;padding:15px;display:flex;flex-direction:column;gap:10px}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.modal-head strong{overflow-wrap:anywhere}
+    .close{background:#f6edf1;color:#735d67;padding:9px 13px}.viewer{width:100%;height:100%;border:0;border-radius:12px;background:#faf7f9}
+    video.viewer{object-fit:contain}.modal-help{font-size:12px;color:var(--muted);margin:0}
+    @media(max-width:560px){.wrap{margin:28px auto}.toolbar{align-items:stretch}.search{max-width:none;width:100%}.toolbar h2{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="logo">🌷</div>
+      <h1>몽글 파일함</h1>
+      <p class="sub">소중한 파일을 한곳에 모아두었어요</p>
+    </header>
+
+    <section id="loginPanel" class="panel lock">
+      <div style="text-align:center;font-size:34px;margin-bottom:8px">🔐</div>
+      <h2 style="text-align:center;margin:0 0 7px;font-size:21px">비밀번호를 입력해 주세요</h2>
+      <p class="sub" style="text-align:center;margin-bottom:23px">초대받은 사람만 파일을 확인할 수 있어요.</p>
+      <form id="loginForm">
+        <label class="label" for="password">접근 비밀번호</label>
+        <input id="password" type="password" placeholder="비밀번호 입력" autocomplete="current-password" required>
+        <button class="unlock" type="submit">파일함 열기 ✨</button>
+        <p id="error" class="error" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="filesPanel" class="panel hidden">
+      <div class="toolbar">
+        <h2>📁 공유된 파일</h2>
+        <input id="search" class="search" type="search" placeholder="파일 이름 검색…">
+      </div>
+      <div id="fileGrid" class="grid"></div>
+      <p class="note">필요한 파일을 미리 보거나 다운로드할 수 있어요 ☁️</p>
+    </section>
+    <p class="note">Made with ♡ · 몽글 파일함</p>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="파일 미리보기">
+    <div class="modal-box">
+      <div class="modal-head"><strong id="modalTitle">미리보기</strong><button class="close" id="closeModal">닫기 ✕</button></div>
+      <p class="modal-help">파일이 표시되지 않으면 다운로드해서 확인해 주세요.</p>
+      <div id="viewerHost" style="flex:1;min-height:0"></div>
+    </div>
+  </div>
+
+<script>
+  // ===== 관리자 설정: 이 부분을 수정하세요 =====
+  const ACCESS_PASSWORD = "1234"; // 원하는 비밀번호로 변경
+  // 파일을 files 폴더에 넣고 아래 목록에 등록하세요.
+  // type은 "pdf" 또는 "video"를 사용합니다.
+  const FILES = [
+    // { name: "안내문.pdf", path: "files/안내문.pdf", type: "pdf", size: "1.2 MB", description: "공유 안내문" },
+    // { name: "소개 영상.mp4", path: "files/소개영상.mp4", type: "video", size: "18 MB", description: "프로젝트 소개 영상" }
+  ];
+  // =============================================
+
+  const loginPanel = document.getElementById("loginPanel");
+  const filesPanel = document.getElementById("filesPanel");
+  const grid = document.getElementById("fileGrid");
+  const search = document.getElementById("search");
+  const modal = document.getElementById("modal");
+  const viewerHost = document.getElementById("viewerHost");
+
+  document.getElementById("loginForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const entered = document.getElementById("password").value;
+    if (entered === ACCESS_PASSWORD) {
+      loginPanel.classList.add("hidden");
+      filesPanel.classList.remove("hidden");
+      renderFiles();
+    } else {
+      document.getElementById("error").textContent = "비밀번호가 올바르지 않아요. 다시 확인해 주세요.";
+    }
+  });
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function renderFiles() {
+    const q = search.value.trim().toLowerCase();
+    const list = FILES.filter(f => f.name.toLowerCase().includes(q));
+    if (!list.length) {
+      grid.innerHTML = `<div class="empty">${FILES.length ? "검색 결과가 없어요 🔎" : "아직 등록된 파일이 없어요 🌱<br><small>index.html의 FILES 목록에 파일을 추가해 주세요.</small>"}</div>`;
+      return;
+    }
+    grid.innerHTML = list.map((f) => {
+      const icon = f.type === "pdf" ? "📕" : "🎬";
+      const preview = (f.type === "pdf" || f.type === "video")
+        ? `<button class="preview" data-preview="${esc(f.path)}" data-type="${esc(f.type)}" data-name="${esc(f.name)}">미리보기</button>` : "";
+      return `<article class="file">
+        <div class="file-top"><div class="file-icon">${icon}</div><div style="min-width:0"><h3>${esc(f.name)}</h3><div class="meta">${esc((f.type || "").toUpperCase())} · ${esc(f.size || "크기 정보 없음")}</div></div></div>
+        <p class="desc">${esc(f.description || "공유된 파일이에요.")}</p>
+        <div class="actions">${preview}<a class="btn" href="${esc(f.path)}" download>다운로드 ↓</a></div>
+      </article>`;
+    }).join("");
+    grid.querySelectorAll("[data-preview]").forEach(btn => btn.addEventListener("click", () => openPreview(btn.dataset)));
+  }
+  function openPreview(data) {
+    document.getElementById("modalTitle").textContent = data.name;
+    viewerHost.innerHTML = "";
+    let el;
+    if (data.type === "pdf") {
+      el = document.createElement("iframe");
+      el.className = "viewer";
+      el.title = data.name;
+      el.src = data.path;
+    } else {
+      el = document.createElement("video");
+      el.className = "viewer";
+      el.controls = true;
+      el.playsInline = true;
+      el.src = data.path;
+    }
+    viewerHost.appendChild(el);
+    modal.classList.remove("hidden");
+  }
+  function closePreview() {
+    modal.classList.add("hidden");
+    viewerHost.innerHTML = "";
+  }
+  document.getElementById("closeModal").addEventListener("click", closePreview);
+  modal.addEventListener("click", e => { if (e.target === modal) closePreview(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closePreview(); });
+  search.addEventListener("input", renderFiles);
+</script>
+</body>
+</html>

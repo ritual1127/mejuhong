@@ -1,0 +1,1 @@
+공유할 PDF 또는 MP4 파일을 이 폴더에 넣고 index.html의 FILES 목록에 등록하세요.
